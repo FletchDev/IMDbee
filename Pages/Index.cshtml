@@ -1,0 +1,171 @@
+﻿@page
+@model IMDbee.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+<div class="text-center">
+    <img src="~/images/logo.png" width="70px" height="auto" />
+    <h1 class="display-4">IMDbee</h1>
+    <p class="mb-5">Movies sorted by highest rating.</p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Ranking</th>
+                    <th>Movie Title</th>
+                    <th>Director</th>
+                    <th>Release Year</th>
+                    <th>Rating</th>
+                    <th>Manage</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var movie in Model.MovieRatings)
+                {
+                    <tr>
+                        <td class="align-middle font-weight-light">#@((Model.MovieRatings.IndexOf(movie) + 1))</td>
+                        <td class="align-middle">@movie.Title</td>
+                        <td class="align-middle">@movie.Director</td>
+                        <td class="align-middle">@movie.Year</td>
+                        <td class="align-middle">@movie.Rating</td>
+                        <td class="align-middle">
+                            <div class="dropdown">
+                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Actions
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editModal-@movie.Id">
+                                            Edit
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal-@movie.Id">
+                                            Delete
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal-@movie.Id" tabindex="-1" aria-labelledby="editModal-@movie.Id" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="editModalLabel-@movie.Id">Edit movie</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form method="post" asp-page-handler="Edit" asp-route-id="@movie.Id">
+                                    <div class="modal-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="title-@movie.Id" class="mb-1">Title</label>
+                                                    <input type="text" name="title" class="form-control" id="title-@movie.Id" value="@movie.Title" placeholder="Movie Title" required />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="director-@movie.Id" class="mb-1">Director</label>
+                                                    <input type="text" name="director" class="form-control" id="director-@movie.Id" value="@movie.Director" placeholder="Director" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="year-@movie.Id" class="mb-1">Release Year</label>
+                                                    <input type="number" name="year" class="form-control" id="year-@movie.Id" value="@movie.Year" placeholder="Year" required min="1900" max="2100" step="1" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="rating-@movie.Id" class="mb-1">Rating</label>
+                                                    <input type="number" name="rating" class="form-control" id="rating-@movie.Id" value="@movie.Rating" placeholder="Rating" required min="0" max="10" step="0.1" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Delete Modal -->
+                    <div class="modal fade" id="deleteModal-@movie.Id" tabindex="-1" aria-labelledby="deleteModal-@movie.Id" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="deleteModalLabel-@movie.Id">Delete movie</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete "@movie.Title"?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@movie.Id">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add movie</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-page-handler="Add">
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="title" class="mb-1">Title</label>
+                                    <input type="text" name="NewMovie.Title" class="form-control" id="title" placeholder="Movie Title" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="director" class="mb-1">Director</label>
+                                    <input type="text" name="NewMovie.Director" class="form-control" id="director" placeholder="Director" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="year" class="mb-1">Release Year</label>
+                                    <input type="number" name="NewMovie.Year" class="form-control" id="year" placeholder="Year" required min="1900" max="2100" step="1" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="rating" class="mb-1">Rating</label>
+                                    <input type="number" name="NewMovie.Rating" class="form-control" id="rating" placeholder="Rating" required min="0" max="10" step="0.1" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
